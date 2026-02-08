@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - twotier
+    healthcheck:
+      # We use $$ to escape the dollar sign for Docker
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  flask-app:
+    build: .
+    container_name: flask-app
+    ports:
+      - "80:5000"
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - twotier
+    restart: always
+
+networks:
+  twotier:
