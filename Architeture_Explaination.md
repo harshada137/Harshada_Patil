@@ -101,6 +101,8 @@ This project follows a **simple web application architecture** with **Python bac
 
 ---
 
+![Web-Page](images/arch.png) 
+
 ## 4️⃣ Docker Network & Ports
 
 * **Network:** Docker Compose automatically creates a bridge network so services can communicate.
